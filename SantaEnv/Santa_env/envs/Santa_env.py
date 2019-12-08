@@ -3,19 +3,18 @@ from gym import spaces
 import numpy as np
 import pandas as pd
 import math
-# from numba import njit
-import tensorflow as tf
 
+import tensorflow as tf
+import matplotlib.pyplot as plt
 N_DAYS = 100
 MAX_OCCUPANCY = 300
 MIN_OCCUPANCY = 125
 
 
-# @njit
 def cost_function(prediction, penalties_array, family_size, days, choice_array_num):
-	prediction = np.floor(prediction * 100).astype(int)
-	penalty = 0
 
+	prediction = np.around(prediction * 100).astype(int)
+	penalty = 0
 	# We'll use this to count the number of people scheduled each day
 	daily_occupancy = np.zeros((len(days)+1))
 	N = family_size.shape[0]
@@ -27,11 +26,10 @@ def cost_function(prediction, penalties_array, family_size, days, choice_array_n
 		d = prediction[i]
 		choice = choice_array_num[i]
 		daily_occupancy[d] += n
-		
+
 		# Calculate the penalty for not getting top preference
 		penalty += penalties_array[n, choice[d]]
 
-	print(daily_occupancy)
 	# for each date, check total occupancy
 	#  (using soft constraints instead of hard constraints)
 	relevant_occupancy = daily_occupancy[1:]
@@ -91,7 +89,7 @@ class Santa_env(gym.Env):
 		fpath = './Data/family_data.csv'
 		self.data = pd.read_csv(fpath, index_col='family_id')
 
-		fpath = './Data/sample_submission.csv'
+		fpath = './submission_71965.csv'
 		self.sample_submission = pd.read_csv(fpath, index_col='family_id')["assigned_day"].values
 		self.state = self.sample_submission.copy() / 100
 

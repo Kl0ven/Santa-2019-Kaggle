@@ -3,9 +3,8 @@ from gym import spaces
 import numpy as np
 import pandas as pd
 import math
-
 import tensorflow as tf
-import matplotlib.pyplot as plt
+
 N_DAYS = 100
 MAX_OCCUPANCY = 300
 MIN_OCCUPANCY = 125
@@ -89,7 +88,7 @@ class Santa_env(gym.Env):
 		fpath = './Data/family_data.csv'
 		self.data = pd.read_csv(fpath, index_col='family_id')
 
-		fpath = './submission_71965.csv'
+		fpath = './Data/sample_submission.csv'
 		self.sample_submission = pd.read_csv(fpath, index_col='family_id')["assigned_day"].values
 		self.state = self.sample_submission.copy() / 100
 
@@ -124,8 +123,10 @@ class Santa_env(gym.Env):
 		self.swap(action)
 		score = cost_function(self.state, self.penalties_array, self.family_size, self.days_array, self.choice_array_num)
 		self.reward = self.lastScore - score
+		# self.reward = -((score - 1000000) / 1000)
 		self.lastScore = score
 		tf.summary.scalar(name="Santa/Score", data=score)
+		tf.summary.scalar(name="Santa/Reward", data=self.reward)
 		self.cnt += 1
 		if self.cnt > 500:
 			self.done = 1
